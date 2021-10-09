@@ -11,6 +11,8 @@ This is a simple Python application intended to reproduce music, created as part
 How To Use This
 ---------------
 
+Open VSCode -> Run the following commands on a New Terminal:
+
 ```
 $ git clone https://github.com/jgarciaf106/python_music_player.git
 ```
