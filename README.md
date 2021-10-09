@@ -11,13 +11,17 @@ This is a simple Python application intended to reproduce music, created as part
 How To Use This
 ---------------
 
+```
+$ git clone https://github.com/jgarciaf106/python_music_player.git
+```
+```
+$ cd python_music_player
+```
+```
+$ sh ./docs/scripts/run_player_project.bash
+```
 
-Testing
--------
 
-
-Development Frameworks
-----------------------
 
 
 
