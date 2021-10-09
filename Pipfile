@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 requests = "*"
+pygame = "*"
+black = "*"
+tk = "*"
 
 [dev-packages]
 
