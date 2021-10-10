@@ -2,14 +2,17 @@ import random
 import os
 import sys
 import time
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 from tkinter import *
 from tkinter import filedialog
 
 
-class Player:
+class Music_Player:
+    # constructor
     def __init__(self, title):
+        # player settings
         # player gui
         self.root = Tk()
 
@@ -17,27 +20,41 @@ class Player:
         self.root.title(title)
 
         # title icon
-        self.root.iconbitmap("./src/assets/sound.ico")
+        #self.root.iconbitmap("./src/assets/sound.ico") 
 
         # window dimension and position
+
+        ## removes the maximize button
+        self.root.resizable(0, 0)
+
         ## music player wigth and height
         self.window_width = 600
         self.window_height = 400
 
+        ## labeling settings
+        self.delay = 100
+        self.svar = StringVar()
+        self.labl = Label(self.root, textvariable=self.svar, height=10)
+
         # backend music
         pygame.init()
+
         # inite pygame mixer
         pygame.mixer.init()
 
+    # player functionalities
     def open_music_track(self):
         self.root.withdraw()
+
         file_name = filedialog.askopenfilename()
         song_name = file_name.split("/")[-1]
+
         self.set_playing_song(song_name)
         self.play_song(file_name)
 
     def open_music_tracks(self):
         self.root.withdraw()
+
         folder_name = filedialog.askdirectory()
         song_names = []
 
@@ -47,17 +64,20 @@ class Player:
                 song_names.append(folder_name + "/" + file)
 
         self.play_list(song_names)
-        # play songs from directory
-        # for song in song_names:
-        #     song_name = song.split("/")[-1]
-        #     self.set_playing_song(song_name)
 
-    def set_playing_song(self, name):
-        playing_song = "Reproduciendo: " + name
-        self.textBrowserTrackName.setText(playing_song)
+    def set_playing_song(self):
+
+        self.set_playing_song.msg = (
+            self.set_playing_song.msg[1:] + self.set_playing_song.msg[0]
+        )
+        self.svar.set(self.set_playing_song.msg)
+        self.root.after(self.delay, self.set_playing_song)
+        self.labl.pack()
 
     def play_song(self, song):
-        pygame.mixer.init()
+
+        self.set_playing_song()
+
         pygame.mixer.music.load(song)
         song = pygame.mixer.Sound(song)
         song_length = time.strftime("%H:%M:%S", time.gmtime(song.get_length()))
@@ -72,12 +92,10 @@ class Player:
             song_progress = time.strftime("%H:%M:%S", time.gmtime(seconds_elapsed))
 
             if seconds_elapsed <= song.get_length():
-                self.labelTrackTime.setText(song_progress + "/" + song_length)
-                QtWidgets.QApplication.processEvents()
+                print(song_progress + "/" + song_length)
             else:
                 counting = False
-                self.labelTrackTime.setText(song_progress + "/" + song_length)
-                QtWidgets.QApplication.processEvents()
+                print(song_progress + "/" + song_length)
 
     def play_list(self, list):
         pygame.init()
@@ -85,7 +103,6 @@ class Player:
         play_list = sorted(list)
 
         # Loading first audio file into our player
-        first_song = play_list[0].split("/")[-1]
         pygame.mixer.music.load(play_list[0])
 
         # Removing the loaded song from our list
@@ -93,12 +110,9 @@ class Player:
 
         # Playing our music
         pygame.mixer.music.play()
-        self.set_playing_song(first_song)
 
         # Queueing next song into our player
         pygame.mixer.music.queue(play_list[0])
-        second_song = play_list[0].split("/")[-1]
-        self.set_playing_song(second_song)
 
         # Removing the loaded song from our list list
         play_list.pop(0)
@@ -130,8 +144,6 @@ class Player:
                         # and remove from the player
                         time.sleep(2)
                         pygame.mixer.music.queue(play_list[0])
-                        current_song = play_list[0].split("/")[-1]
-                        self.set_playing_song(current_song)
 
                         play_list.pop(0)
 
@@ -169,10 +181,23 @@ class Player:
         center_x = int(screen_width / 2 - self.window_width / 2)
         center_y = int(screen_height / 2 - self.window_height / 2)
 
+        # display screen dimensions
         self.root.geometry(
             f"{self.window_width}x{self.window_height}+{center_x}+{center_y}"
         )
+        
+       
+        # music player gui
+        #Create Master Frame
+        # master_frame = Frame(self.root)
+        # master_frame.pack(pady=20)
 
+        # self.set_playing_song.msg = " Is this an alert, or what? "
+        # self.set_playing_song()
+
+       
+     
+        
     def launch_player(self):
         self.screen_display()
         self.root.mainloop()

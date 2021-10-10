@@ -1,0 +1,1 @@
+pyinstaller --onefile --windowed --name PyPlayer --icon=./src/assets/app.ico ./src/main.py 

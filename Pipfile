@@ -8,6 +8,7 @@ requests = "*"
 pygame = "*"
 black = "*"
 tk = "*"
+pyinstaller = "*"
 
 [dev-packages]
 

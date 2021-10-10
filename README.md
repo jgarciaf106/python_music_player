@@ -8,8 +8,8 @@ What Is This?
 This is a simple Python application intended to reproduce music, created as part of an University assignment.
 
 
-How To Use This
----------------
+Run in development Mode
+-----------------------
 
 Open VSCode -> Run the following commands on a New Terminal:
 
@@ -21,6 +21,15 @@ $ cd python_music_player
 ```
 ```
 $ sh ./docs/scripts/run_player_project.bash
+```
+
+Build Project
+-------------
+
+Run the following command on a New Terminal:
+
+```
+$ sh ./docs/scripts/build_project.bash
 ```
 
 
