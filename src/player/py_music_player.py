@@ -109,6 +109,7 @@ class Music_Player:
             self.canvas.itemconfig(self.player, text=ticker_text)
             # delay by 0.15 seconds
             time.sleep(0.15)
+            self.root.update()
 
         # playing song text message
         for k in range(len(song_playing)):
@@ -117,10 +118,13 @@ class Music_Player:
             self.canvas.itemconfig(self.name, text=ticker_text)
             # delay by 0.15 seconds
             time.sleep(0.15)
+            self.root.update()
 
     def set_playing_progress(self, song_length, song_progress):
-        progress_move = self.time_slider / song_length
+
+        progress_move = round(song_length / self.time_slider,2)
         self.music_progress = progress_move
+        print(progress_move)
         song_length = time.strftime("%H:%M:%S", time.gmtime(song_length))
         self.canvas.itemconfig(self.lenght, text=song_length)
         self.canvas.itemconfig(self.playing, text=song_progress)
@@ -128,19 +132,38 @@ class Music_Player:
 
     def set_time_progress(self, song_input):
 
+        self.canvas.itemconfig(self.player, text="Reproduciendo")
         song = pygame.mixer.Sound(song_input)
         song_length_secs = song.get_length()
         song_name = song_input.split("/")[-1].split(".")[0]
         start = time.time()
         counting = True
+        i=0
         while counting:
             end = time.time()
             seconds_elapsed = end - start
             song_progress = time.strftime("%H:%M:%S", time.gmtime(seconds_elapsed))
             self.set_playing_progress(song_length_secs, song_progress)
-            self.set_playing_song(song_name)
+
+            text_display_space = " " * 15
+            playing = text_display_space + song_name + text_display_space
+            
+            # playing text message
+            l = len(playing)
+            # use string slicing to do the trick
+            ticker_text = playing[i : i + 20]
+            self.canvas.itemconfig(self.name, text=ticker_text)
+            # delay by 0.15 seconds
+            time.sleep(0.15)
+
+            if i < l:
+                i += 1
+            else:
+                i = 0
+   
             if seconds_elapsed > song_length_secs:
                 counting = False
+            
             self.root.update()
             # self.root.deiconify()
 
@@ -219,6 +242,7 @@ class Music_Player:
 
     def pause_music(self):
         self.playing_status = "Paused"
+        self.canvas.itemconfig(self.player, text="Reproducion Pausada")
         print(self.playing_status)
         pygame.mixer.music.pause()
 
