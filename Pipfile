@@ -9,6 +9,9 @@ pygame = "*"
 black = "*"
 tk = "*"
 pyinstaller = "*"
+jurigged = "*"
+pillow = "*"
+fontawesome = "*"
 
 [dev-packages]
 

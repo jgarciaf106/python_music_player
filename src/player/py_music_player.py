@@ -1,12 +1,12 @@
 import random
 import os
-import sys
 import time
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 from tkinter import *
 from tkinter import filedialog
+from PIL import Image, ImageTk
 
 
 class Music_Player:
@@ -20,7 +20,9 @@ class Music_Player:
         self.root.title(title)
 
         # title icon
-        #self.root.iconbitmap("./src/assets/sound.ico") 
+        self.root.iconbitmap(
+            r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\sound.ico"
+        )
 
         # window dimension and position
 
@@ -28,13 +30,8 @@ class Music_Player:
         self.root.resizable(0, 0)
 
         ## music player wigth and height
-        self.window_width = 600
-        self.window_height = 400
-
-        ## labeling settings
-        self.delay = 100
-        self.svar = StringVar()
-        self.labl = Label(self.root, textvariable=self.svar, height=10)
+        self.window_width = 375
+        self.window_height = 715
 
         # backend music
         pygame.init()
@@ -42,18 +39,53 @@ class Music_Player:
         # inite pygame mixer
         pygame.mixer.init()
 
+        # interface
+        self.canvas = Canvas(
+            self.root,
+            bg="#0A0A0A",
+            height=715,
+            width=375,
+            bd=0,
+            highlightthickness=0,
+            relief="ridge",
+        )
+
+        self.time_slider = 315
+        self.prev_button = ImageTk.PhotoImage(
+            Image.open("./src/assets/boton-de-previous.png").resize((37, 37))
+        )
+        self.play_button = ImageTk.PhotoImage(
+            Image.open("./src/assets/boton-de-play.png").resize((37, 37))
+        )
+        self.pause_button = ImageTk.PhotoImage(
+            Image.open("./src/assets/boton-de-pause.png").resize((37, 37))
+        )
+        self.resume_button = ImageTk.PhotoImage(
+            Image.open("./src/assets/boton-de-resume.png").resize((37, 37))
+        )
+        self.next_button = ImageTk.PhotoImage(
+            Image.open("./src/assets/boton-de-next.png").resize((37, 37))
+        )
+        self.open_button = ImageTk.PhotoImage(
+            Image.open("./src/assets/boton-de-choose.png").resize((25, 25))
+        )
+
+        # Player information
+        self.player_name = title
+        self.song_volume = 10
+        self.song_length = "00:00:00"
+        self.music_progress = 0
+        self.song_progress = "00:00:00"
+        self.playing_status = "Not Playing"
+
     # player functionalities
     def open_music_track(self):
-        self.root.withdraw()
-
+        # self.root.withdraw()
         file_name = filedialog.askopenfilename()
-        song_name = file_name.split("/")[-1]
-
-        self.set_playing_song(song_name)
         self.play_song(file_name)
 
     def open_music_tracks(self):
-        self.root.withdraw()
+        # self.root.withdraw()
 
         folder_name = filedialog.askdirectory()
         song_names = []
@@ -65,37 +97,58 @@ class Music_Player:
 
         self.play_list(song_names)
 
-    def set_playing_song(self):
+    def set_playing_song(self, name):
+        text_player = "Reproduciendo"
+        text_display_space = " " * 15
+        playing = text_display_space + text_player + text_display_space
+        song_playing = text_display_space + name + text_display_space
+        # playing text message
+        for k in range(len(playing)):
+            # use string slicing to do the trick
+            ticker_text = playing[k : k + 20]
+            self.canvas.itemconfig(self.player, text=ticker_text)
+            # delay by 0.15 seconds
+            time.sleep(0.15)
 
-        self.set_playing_song.msg = (
-            self.set_playing_song.msg[1:] + self.set_playing_song.msg[0]
-        )
-        self.svar.set(self.set_playing_song.msg)
-        self.root.after(self.delay, self.set_playing_song)
-        self.labl.pack()
+        # playing song text message
+        for k in range(len(song_playing)):
+            # use string slicing to do the trick
+            ticker_text = song_playing[k : k + 20]
+            self.canvas.itemconfig(self.name, text=ticker_text)
+            # delay by 0.15 seconds
+            time.sleep(0.15)
 
-    def play_song(self, song):
+    def set_playing_progress(self, song_length, song_progress):
+        progress_move = self.time_slider / song_length
+        self.music_progress = progress_move
+        song_length = time.strftime("%H:%M:%S", time.gmtime(song_length))
+        self.canvas.itemconfig(self.lenght, text=song_length)
+        self.canvas.itemconfig(self.playing, text=song_progress)
+        self.canvas.move(self.song_progress_slider, self.music_progress, 0)
 
-        self.set_playing_song()
+    def set_time_progress(self, song_input):
 
-        pygame.mixer.music.load(song)
-        song = pygame.mixer.Sound(song)
-        song_length = time.strftime("%H:%M:%S", time.gmtime(song.get_length()))
-        pygame.mixer.music.play()
-
+        song = pygame.mixer.Sound(song_input)
+        song_length_secs = song.get_length()
+        song_name = song_input.split("/")[-1].split(".")[0]
         start = time.time()
-
         counting = True
         while counting:
             end = time.time()
             seconds_elapsed = end - start
             song_progress = time.strftime("%H:%M:%S", time.gmtime(seconds_elapsed))
-
-            if seconds_elapsed <= song.get_length():
-                print(song_progress + "/" + song_length)
-            else:
+            self.set_playing_progress(song_length_secs, song_progress)
+            self.set_playing_song(song_name)
+            if seconds_elapsed > song_length_secs:
                 counting = False
-                print(song_progress + "/" + song_length)
+            self.root.update()
+            # self.root.deiconify()
+
+    def play_song(self, song):
+        self.playing_status = "Playing"
+        pygame.mixer.music.load(song)
+        pygame.mixer.music.play()
+        self.set_time_progress(song)
 
     def play_list(self, list):
         pygame.init()
@@ -161,16 +214,27 @@ class Music_Player:
                     break
 
     def stop_music(self):
+        self.playing_status = "Not Playing"
         pygame.mixer.music.stop()
 
     def pause_music(self):
+        self.playing_status = "Paused"
+        print(self.playing_status)
         pygame.mixer.music.pause()
 
     def resume_music(self):
+        self.playing_status = "Playing"
+        print(self.playing_status)
         pygame.mixer.music.unpause()
 
-    def volume_music(self):
-        pygame.mixer.music.set_volume(self.horizontalSliderVolume.value() / 10)
+    def set_playing_status(self):
+        if self.playing_status == "Playing":
+            self.pause_music()
+        if self.playing_status == "Paused":
+            self.resume_music()
+
+    def set_volume(self, value):
+        pygame.mixer.music.set_volume(int(value) / 10)
 
     def screen_display(self):
         # get the screen dimension
@@ -183,21 +247,145 @@ class Music_Player:
 
         # display screen dimensions
         self.root.geometry(
-            f"{self.window_width}x{self.window_height}+{center_x}+{center_y}"
+            f"{self.window_width}x{self.window_height - 30}+{center_x}+{center_y}"
         )
-        
-       
-        # music player gui
-        #Create Master Frame
-        # master_frame = Frame(self.root)
-        # master_frame.pack(pady=20)
 
-        # self.set_playing_song.msg = " Is this an alert, or what? "
-        # self.set_playing_song()
+        self.canvas.place(x=0, y=0)
 
-       
-     
-        
+        # now playing
+        self.player = self.canvas.create_text(
+            127.0,
+            34.240234375,
+            anchor="nw",
+            text=self.player_name,
+            fill="#FFFFFF",
+            font=("Roboto", 20 * -1),
+        )
+
+        # song name
+        self.name = self.canvas.create_text(
+            155.0,
+            425,
+            anchor="nw",
+            text="",
+            fill="#FFFFFF",
+            font=("Roboto", 20 * -1),
+        )
+
+        # song playing time
+        self.playing = self.canvas.create_text(
+            30.0,
+            576.2227172851562,
+            anchor="nw",
+            text=self.song_progress,
+            fill="#FFFFFF",
+            font=("Roboto", 12 * -1),
+        )
+
+        # song length
+        self.lenght = self.canvas.create_text(
+            311.00048828125,
+            576.2227172851562,
+            anchor="nw",
+            text=self.song_length,
+            fill="#FFFFFF",
+            font=("Roboto", 12 * -1),
+        )
+
+        self.canvas.create_rectangle(
+            29.1666259765625,
+            549.3809204101562,
+            33.6632080078125,
+            549.3809204101562,
+            fill="#FFFFFF",
+            outline="",
+        )
+
+        # song length line
+        self.canvas.create_rectangle(
+            29.1666259765625,
+            549.3809204101562,
+            346.8753662109375,
+            549.3809204101562,
+            fill="#FFFFFF",
+            outline="",
+        )
+
+        # song progress
+        self.song_progress_slider = self.canvas.create_rectangle(
+            27.0833740234375,
+            541.4363403320312,
+            33.75,
+            557.325439453125,
+            fill="#2a2727",
+            outline="",
+        )
+
+        # music controls prev
+        prev_music_btn = Button(
+            self.root,
+            command=self.open_music_track,
+            text=self.prev_button,
+            borderwidth=1,
+            image=self.prev_button,
+            bg="#0A0A0A",
+        )
+        prev_music_btn.place(x=100, y=619, height=45, width=50)
+
+        # music controls play/plause
+        pl_music_btn = Button(
+            self.root,
+            command=self.set_playing_status,
+            text=self.play_button,
+            borderwidth=1,
+            image=self.play_button,
+            bg="#0A0A0A",
+        )
+        pl_music_btn.place(x=161, y=619, height=45, width=50)
+
+        # music controls next
+        next_music_btn = Button(
+            self.root,
+            command=self.open_music_track,
+            image=self.next_button,
+            borderwidth=1,
+            bg="#0A0A0A",
+        )
+        next_music_btn.place(x=221, y=619, height=45, width=50)
+
+        # volume control
+        volume_music_ctl = Scale(
+            self.root,
+            highlightthickness=0,
+            relief="ridge",
+            label="Volumen",
+            bg="#0A0A0A",
+            fg="#FFFFFF",
+            from_=0,
+            to=10,
+            orient=HORIZONTAL,
+            command=self.set_volume,
+        )
+        volume_music_ctl.place(x=290, y=470, height=60, width=65)
+        volume_music_ctl.set(self.song_volume)
+
+        # actions button open song/songs
+        open_music_btn = Button(
+            self.root,
+            command=self.open_music_track,
+            borderwidth=1,
+            image=self.open_button,
+            bg="#0A0A0A",
+        )
+        open_music_btn.place(x=24, y=490, height=32, width=35)
+
+        # song equailizer
+        self.canvas.create_rectangle(
+            27.0, 100.0, 354.0, 379.0, fill="#FFFFFF", outline=""
+        )
+
+        # display app
+        self.root.mainloop()
+
     def launch_player(self):
         self.screen_display()
-        self.root.mainloop()
