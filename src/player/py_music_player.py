@@ -121,21 +121,6 @@ class Music_Player:
         self.song_names = song_names
         self.play_list()
 
-    def playing_song_ticker(self):
-
-        song_name = self.song_name.split("/")[-1].split(".")[0]
-
-        text_display_space = " " * 15
-        playing = text_display_space + "Reproduciendo: " + song_name + text_display_space
-
-        for char in range(len(playing)):
-            # use string slicing to do the trick
-            ticker_text = playing[char : char + 20]
-            self.canvas.itemconfig(self.name, text=ticker_text)
-            self.root.update()
-            # delay by 0.15 seconds
-            time.sleep(0.15)
-
     def set_time_progress(self):
         # song name
         song_name = self.song_name.split("/")[-1].split(".")[0]
@@ -178,7 +163,7 @@ class Music_Player:
             self.progress_bar.step(progress_move)
 
             # display scolling label
-            text_display_space = " " * 10
+            text_display_space = " " * 3
             playing = text_display_space  + "Reproduciendo: " + song_name + text_display_space
             
             # playing text message
