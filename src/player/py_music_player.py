@@ -62,31 +62,49 @@ class Music_Player:
         )
 
         self.prev_button = ImageTk.PhotoImage(
-            Image.open("./src/assets/boton-de-previous.png").resize((37, 37))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-previous.png"
+            ).resize((37, 37))
         )
         self.play_button = ImageTk.PhotoImage(
-            Image.open("./src/assets/boton-de-play.png").resize((37, 37))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-play.png"
+            ).resize((37, 37))
         )
         self.pause_button = ImageTk.PhotoImage(
-            Image.open("./src/assets/boton-de-pause.png").resize((37, 37))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-pause.png"
+            ).resize((37, 37))
         )
         self.resume_button = ImageTk.PhotoImage(
-            Image.open("./src/assets/boton-de-resume.png").resize((37, 37))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-resume.png"
+            ).resize((37, 37))
         )
         self.next_button = ImageTk.PhotoImage(
-            Image.open("./src/assets/boton-de-next.png").resize((37, 37))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-next.png"
+            ).resize((37, 37))
         )
         self.open_track = ImageTk.PhotoImage(
-            Image.open("./src/assets/song.png").resize((25, 25))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\song.png"
+            ).resize((25, 25))
         )
         self.open_tracks = ImageTk.PhotoImage(
-            Image.open("./src/assets/folder.png").resize((25, 25))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\folder.png"
+            ).resize((25, 25))
         )
         self.volume_up = ImageTk.PhotoImage(
-            Image.open("./src/assets/plus.png").resize((25, 25))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\plus.png"
+            ).resize((25, 25))
         )
         self.volume_down = ImageTk.PhotoImage(
-            Image.open("./src/assets/minus.png").resize((25, 25))
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\minus.png"
+            ).resize((25, 25))
         )
 
         # Player information
@@ -141,7 +159,7 @@ class Music_Player:
         # update tkinter labels
         self.canvas.itemconfig(self.lenght, text=song_length)
         # loop start
-        i=0
+        i = 0
         counting = True
         while counting:
             # current playing time
@@ -164,20 +182,20 @@ class Music_Player:
 
             # display scolling label
             text_display_space = " " * 3
-            playing = text_display_space  + "Reproduciendo: " + song_name + text_display_space
-            
+            playing = (
+                text_display_space + "Reproduciendo: " + song_name + text_display_space
+            )
+
             # playing text message
             l = len(playing)
             # use string slicing to do the trick
             ticker_text = playing[i : i + 10]
             self.canvas.itemconfig(self.name, text=ticker_text)
 
-
             if i < l:
                 i += 1
             else:
                 i = 0
-            
 
             time.sleep(self.sleep_secs)
 
@@ -185,7 +203,7 @@ class Music_Player:
                 counting = False
 
             self.root.update()
-            
+
         # reset bar and labels
         self.progress_bar.stop()
         self.canvas.itemconfig(self.playing, text=self.song_progress)
@@ -201,7 +219,7 @@ class Music_Player:
 
         # music starts playing
         pygame.mixer.music.play()
-        
+
         # update playing progress
         self.set_time_progress()
 
@@ -219,18 +237,16 @@ class Music_Player:
                 playing = False
 
     def stop_music(self):
+        pygame.mixer.music.stop()        
         self.playing_status = "Not Playing"
-        pygame.mixer.music.stop()
 
     def pause_music(self):
-        self.canvas.itemconfig(self.player, text="Reproducion Pausada")
         pygame.mixer.music.pause()
         self.playing_status = "Paused"
         self.pl_music_btn.configure(image=self.resume_button)
         self.sleep_secs = 86400
 
     def resume_music(self):
-        self.canvas.itemconfig(self.player, text="Reproduciendo")
         pygame.mixer.music.unpause()
         self.playing_status = "Playing"
         self.pl_music_btn.configure(image=self.pause_button)
@@ -410,10 +426,17 @@ class Music_Player:
         open_tracks_btn.place(x=68, y=470, height=32, width=35)
 
         # song equailizer
-        self.canvas.create_rectangle(
-            27.0, 100.0, 354.0, 379.0, fill="#FFFFFF", outline=""
+        photo = ImageTk.PhotoImage(
+            Image.open(
+                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\equalizer.gif"
+            ).resize((300, 300))
         )
 
+        self.canvas.create_image(
+            188, 240, image=photo
+        )
+
+        
         # display app
         self.root.mainloop()
 
