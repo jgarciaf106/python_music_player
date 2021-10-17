@@ -6,7 +6,8 @@
         {
             "label": "RunPy",
             "type": "shell",
-            "command": "pipenv run python ./src/main.py"
+            "command": "pipenv run python ./src/main.py",
+            "problemMatcher": []
         }
     ]
 }

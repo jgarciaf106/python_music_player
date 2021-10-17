@@ -1,6 +1,7 @@
 import random
 import os
 import time
+import math
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
@@ -12,6 +13,7 @@ from PIL import Image, ImageTk
 
 
 class Music_Player:
+
     # constructor
     def __init__(self, title):
         # player settings
@@ -30,15 +32,13 @@ class Music_Player:
 
         ## removes the maximize button
         self.root.resizable(0, 0)
-        
+
         # Creating a Font object of "TkDefaultFont"
         self.defaultFont = font.nametofont("TkDefaultFont")
-  
+
         # Overriding default-font with custom settings
         # i.e changing font-family, size and weight
-        self.defaultFont.configure(family="Segoe UI",
-                                   size=10,
-                                   weight=font.BOLD)
+        self.defaultFont.configure(family="Segoe UI", size=10, weight=font.BOLD)
 
         ## music player wigth and height
         self.window_width = 375
@@ -82,25 +82,34 @@ class Music_Player:
         self.open_tracks = ImageTk.PhotoImage(
             Image.open("./src/assets/folder.png").resize((25, 25))
         )
+        self.volume_up = ImageTk.PhotoImage(
+            Image.open("./src/assets/plus.png").resize((25, 25))
+        )
+        self.volume_down = ImageTk.PhotoImage(
+            Image.open("./src/assets/minus.png").resize((25, 25))
+        )
 
         # Player information
+        self.sleep_secs = 1
         self.player_name = title
-        self.song_volume = 10
+        self.song_volume = 100
+        self.volume = 1
         self.song_length = "00:00:00"
         self.music_progress = 0
         self.song_progress = "00:00:00"
         self.playing_status = "Not Playing"
+        self.index_song = 0
+        self.song_name = ""
+        self.song_names = []
 
     # player functionalities
     def open_music_track(self):
         # self.root.withdraw()
-        file_name = filedialog.askopenfilename()        
+        self.song_name = filedialog.askopenfilename()
         self.playing_status = "Playing"
-        self.play_song(file_name)
-        self.pl_music_btn.configure(image=self.pause_button)
+        self.play_song()
 
     def open_music_tracks(self):
-        # self.root.withdraw()
 
         folder_name = filedialog.askdirectory()
         song_names = []
@@ -109,145 +118,120 @@ class Music_Player:
         for file in os.listdir(folder_name):
             if file.endswith(".mp3"):
                 song_names.append(folder_name + "/" + file)
+        self.song_names = song_names
+        self.play_list()
 
-        self.play_list(song_names)
+    def playing_song_ticker(self):
 
-    def set_playing_song(self, name):
-        text_player = "Reproduciendo"
+        song_name = self.song_name.split("/")[-1].split(".")[0]
+
         text_display_space = " " * 15
-        playing = text_display_space + text_player + text_display_space
-        song_playing = text_display_space + name + text_display_space
-        # playing text message
-        for k in range(len(playing)):
-            # use string slicing to do the trick
-            ticker_text = playing[k : k + 20]
-            self.canvas.itemconfig(self.player, text=ticker_text)
-            # delay by 0.15 seconds
-            time.sleep(0.15)
-            self.root.update()
+        playing = text_display_space + "Reproduciendo: " + song_name + text_display_space
 
-        # playing song text message
-        for k in range(len(song_playing)):
+        for char in range(len(playing)):
             # use string slicing to do the trick
-            ticker_text = song_playing[k : k + 20]
+            ticker_text = playing[char : char + 20]
             self.canvas.itemconfig(self.name, text=ticker_text)
+            self.root.update()
             # delay by 0.15 seconds
             time.sleep(0.15)
-            self.root.update()
 
-    def set_playing_progress(self, song_time, song_progress):
+    def set_time_progress(self):
+        # song name
+        song_name = self.song_name.split("/")[-1].split(".")[0]
 
-        progress_move = 100 // song_time
-        song_length = time.strftime("%H:%M:%S", time.gmtime(song_time))
-        self.canvas.itemconfig(self.lenght, text=song_length)
-        self.canvas.itemconfig(self.playing, text=song_progress)
-        self.progress_bar.step(progress_move)
-        
-    def set_time_progress(self, song_input):
-
-        self.canvas.itemconfig(self.player, text="Reproduciendo")
-        song = pygame.mixer.Sound(song_input)
-        song_length_secs = song.get_length()
-        song_name = song_input.split("/")[-1].split(".")[0]
+        # start playing time
         start = time.time()
-        counting = True
-        i=0
-        
-        while counting:
-            end = time.time()
-            seconds_elapsed = end - start
-            song_progress = time.strftime("%H:%M:%S", time.gmtime(seconds_elapsed))
-            self.set_playing_progress(song_length_secs, song_progress)
 
-            text_display_space = " " * 15
-            playing = text_display_space + song_name + text_display_space
+        # get music file
+        song = pygame.mixer.Sound(self.song_name)
+
+        # get music file length
+        song_length_secs = song.get_length()
+        progress_move = 100 / song_length_secs
+
+        # time formatting
+        song_length = time.strftime("%H:%M:%S", time.gmtime(song_length_secs))
+
+        # update tkinter labels
+        self.canvas.itemconfig(self.lenght, text=song_length)
+        # loop start
+        i=0
+        counting = True
+        while counting:
+            # current playing time
+            end = time.time()
+
+            # elapsed playing time
+            seconds_elapsed = end - start
+
+            # get current played time
+            played_time = pygame.mixer.music.get_pos() / 1000
+
+            # format played time
+            song_progress = time.strftime("%H:%M:%S", time.gmtime(played_time))
+
+            # update played time labels
+            self.canvas.itemconfig(self.playing, text=song_progress)
+
+            # update song progress on bar
+            self.progress_bar.step(progress_move)
+
+            # display scolling label
+            text_display_space = " " * 10
+            playing = text_display_space  + "Reproduciendo: " + song_name + text_display_space
             
             # playing text message
             l = len(playing)
             # use string slicing to do the trick
-            ticker_text = playing[i : i + 20]
+            ticker_text = playing[i : i + 10]
             self.canvas.itemconfig(self.name, text=ticker_text)
-            # delay by 0.15 seconds
-            time.sleep(1)
+
 
             if i < l:
                 i += 1
             else:
                 i = 0
-   
+            
+
+            time.sleep(self.sleep_secs)
+
             if seconds_elapsed > song_length_secs:
                 counting = False
-            
+
             self.root.update()
-            # self.root.deiconify()
+            
+        # reset bar and labels
+        self.progress_bar.stop()
+        self.canvas.itemconfig(self.playing, text=self.song_progress)
+        self.canvas.itemconfig(self.name, text="")
 
-    def play_song(self, song):
-        pygame.mixer.music.load(song)
+    def play_song(self):
+
+        # load next song
+        pygame.mixer.music.load(self.song_name)
+
+        # update play button to pause icon
+        self.pl_music_btn.configure(image=self.pause_button)
+
+        # music starts playing
         pygame.mixer.music.play()
-        self.set_time_progress(song)
+        
+        # update playing progress
+        self.set_time_progress()
 
-    def play_list(self, list):
-        pygame.init()
-        pygame.mixer.init()
-        play_list = sorted(list)
+        time.sleep(1)
 
-        # Loading first audio file into our player
-        pygame.mixer.music.load(play_list[0])
-
-        # Removing the loaded song from our list
-        play_list.pop(0)
-
-        # Playing our music
-        pygame.mixer.music.play()
-
-        # Queueing next song into our player
-        pygame.mixer.music.queue(play_list[0])
-
-        # Removing the loaded song from our list list
-        play_list.pop(0)
-
-        # setting up an end event which host an event
-        # after the end of every song
-        MUSIC_END = pygame.USEREVENT + 1
-        pygame.mixer.music.set_endevent(MUSIC_END)
-
+    def play_list(self):
         # Playing the songs in the background
         playing = True
         while playing:
-
-            # checking if any event has been
-            # hosted at time of playing
-            for event in pygame.event.get():
-
-                # A event will be hosted
-                # after the end of every song
-                if event.type == MUSIC_END:
-                    # print("Song Finished")
-
-                    # Checking our list
-                    # that if any song exist or
-                    # it is empty
-                    if len(play_list) > 0:
-
-                        # if song available then load it in player
-                        # and remove from the player
-                        time.sleep(2)
-                        pygame.mixer.music.queue(play_list[0])
-
-                        play_list.pop(0)
-
-                # Checking whether the
-                # player is still playing any song
-                # if yes it will return true and false otherwise
-                if not pygame.mixer.music.get_busy():
-                    # print("list completed")
-
-                    # When the list has
-                    # completed playing successfully
-                    # we'll go out of the
-                    # while-loop by using break
-                    playing = False
-                    break
+            if self.index_song <= len(self.song_names) - 1:
+                self.song_name = self.song_names[self.index_song]
+                self.play_song()
+                self.index_song += 1
+            else:
+                playing = False
 
     def stop_music(self):
         self.playing_status = "Not Playing"
@@ -255,15 +239,17 @@ class Music_Player:
 
     def pause_music(self):
         self.canvas.itemconfig(self.player, text="Reproducion Pausada")
-        pygame.mixer.music.pause()        
-        self.playing_status = "Paused"        
+        pygame.mixer.music.pause()
+        self.playing_status = "Paused"
         self.pl_music_btn.configure(image=self.resume_button)
+        self.sleep_secs = 86400
 
     def resume_music(self):
         self.canvas.itemconfig(self.player, text="Reproduciendo")
-        pygame.mixer.music.unpause()        
+        pygame.mixer.music.unpause()
         self.playing_status = "Playing"
         self.pl_music_btn.configure(image=self.pause_button)
+        self.sleep_secs = 1
 
     def set_playing_status(self):
         if self.playing_status == "Playing":
@@ -271,8 +257,21 @@ class Music_Player:
         elif self.playing_status == "Paused":
             self.resume_music()
 
-    def set_volume(self, value):
-        pygame.mixer.music.set_volume(int(value) / 10)
+    def set_volume_down(self):
+
+        if self.volume > 0 and self.song_volume > 0:
+            self.volume -= 0.1
+            self.song_volume -= 10
+            self.canvas.itemconfig(self.volume_label, text=str(self.song_volume) + "%")
+            pygame.mixer.music.set_volume(self.volume)
+
+    def set_volume_up(self):
+
+        if self.volume < 1 and self.song_volume <= 100:
+            self.volume += 0.1
+            self.song_volume += 10
+            self.canvas.itemconfig(self.volume_label, text=str(self.song_volume) + "%")
+            pygame.mixer.music.set_volume(self.volume)
 
     def screen_display(self):
         # get the screen dimension
@@ -289,6 +288,16 @@ class Music_Player:
         )
 
         self.canvas.place(x=0, y=0)
+
+        # volume label
+        self.volume_label = self.canvas.create_text(
+            300,
+            450,
+            anchor="nw",
+            text=str(self.song_volume) + "%",
+            fill="#FFFFFF",
+            font=("Segoe UI", 13 * -1),
+        )
 
         # now playing
         self.player = self.canvas.create_text(
@@ -330,17 +339,19 @@ class Music_Player:
             font=("Segoe UI", 12 * -1),
         )
 
-        s = ttk.Style()        
-        s.theme_use('clam')
-        s.configure("red.Horizontal.TProgressbar", foreground='black', background='black')
+        s = ttk.Style()
+        s.theme_use("clam")
+        s.configure(
+            "red.Horizontal.TProgressbar", foreground="black", background="black"
+        )
         self.progress_bar = ttk.Progressbar(
-                self.root,
-                orient='horizontal',
-                mode = 'determinate',
-                length=315,
-                style="red.Horizontal.TProgressbar"
-            )
-        
+            self.root,
+            orient="horizontal",
+            mode="determinate",
+            length=315,
+            style="red.Horizontal.TProgressbar",
+        )
+
         # place the progressbar
         self.progress_bar.grid(column=0, row=0, columnspan=2, padx=30, pady=545)
 
@@ -375,20 +386,23 @@ class Music_Player:
         next_music_btn.place(x=221, y=619, height=45, width=50)
 
         # volume control
-        volume_music_ctl = Scale(
+        volume_up_btn = Button(
             self.root,
-            highlightthickness=0,
-            relief="ridge",
-            label="Volumen",
+            command=self.set_volume_up,
+            borderwidth=1,
+            image=self.volume_up,
             bg="#0A0A0A",
-            fg="#FFFFFF",
-            from_=0,
-            to=10,
-            orient=HORIZONTAL,
-            command=self.set_volume,
         )
-        volume_music_ctl.place(x=28, y=470, height=60, width=100)
-        volume_music_ctl.set(self.song_volume)
+        volume_up_btn.place(x=320, y=470, height=32, width=35)
+
+        volume_down_btn = Button(
+            self.root,
+            command=self.set_volume_down,
+            borderwidth=1,
+            image=self.volume_down,
+            bg="#0A0A0A",
+        )
+        volume_down_btn.place(x=280, y=470, height=32, width=35)
 
         # actions button open song/songs
         open_track_btn = Button(
@@ -398,7 +412,7 @@ class Music_Player:
             image=self.open_track,
             bg="#0A0A0A",
         )
-        open_track_btn.place(x=24, y=10, height=32, width=35)
+        open_track_btn.place(x=27, y=470, height=32, width=35)
 
         # actions button open song/songs
         open_tracks_btn = Button(
@@ -408,7 +422,7 @@ class Music_Player:
             image=self.open_tracks,
             bg="#0A0A0A",
         )
-        open_tracks_btn.place(x=65, y=10, height=32, width=35)
+        open_tracks_btn.place(x=68, y=470, height=32, width=35)
 
         # song equailizer
         self.canvas.create_rectangle(
