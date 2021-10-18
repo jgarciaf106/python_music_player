@@ -3,7 +3,6 @@ import os
 import time
 import math
 
-
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 from tkinter import ttk, font
@@ -128,7 +127,7 @@ class Music_Player:
 
         # animation
         self.figure = plt.Figure()
-        self.x = np.arange(0, 2*np.pi, 0.01)  
+        self.x = np.arange(0, 2 * np.pi, 0.01)
 
     # player functionalities
     def open_music_track(self):
@@ -230,7 +229,7 @@ class Music_Player:
         # music starts playing
         pygame.mixer.music.play()
 
-        #self.plot_music()
+        # self.plot_music()
 
         # update playing progress
         self.set_time_progress()
@@ -249,7 +248,7 @@ class Music_Player:
                 playing = False
 
     def stop_music(self):
-        pygame.mixer.music.stop()        
+        pygame.mixer.music.stop()
         self.playing_status = "Not Playing"
 
     def pause_music(self):
@@ -286,20 +285,24 @@ class Music_Player:
             self.canvas.itemconfig(self.volume_label, text=str(self.song_volume) + "%")
             pygame.mixer.music.set_volume(self.volume)
 
-    def plot_music(self):        
+    def plot_music(self):
         tk_plot = FigureCanvasTkAgg(self.figure, master=self.root)
         tk_plot.get_tk_widget().place(x=27, y=80, height=300, width=320)
 
         ax = self.figure.add_subplot(111)
         ax.axes.get_xaxis().set_visible(False)
         ax.axes.get_yaxis().set_visible(False)
-        
-        self.line, = ax.plot(self.x, np.sin(self.x))
-        animation.FuncAnimation(self.figure, self.animate, np.arange(1, 200), interval=25, blit=False)
-        
+
+        (self.line,) = ax.plot(self.x, np.sin(self.x))
+        animation.FuncAnimation(
+            self.figure, self.animate, np.arange(1, 200), interval=25, blit=False
+        )
+
     def animate(self, i):
-        self.line.set_ydata(np.sin(self.x+i/random.randint(10, 15)))  # update the data
-        return self.line,
+        self.line.set_ydata(
+            np.sin(self.x + i / random.randint(10, 15))
+        )  # update the data
+        return (self.line,)
 
     def screen_display(self):
         # get the screen dimension
@@ -451,17 +454,19 @@ class Music_Player:
             bg="#0A0A0A",
         )
         open_tracks_btn.place(x=68, y=470, height=32, width=35)
-        
-        #equalizer demo
+
+        # equalizer demo
         tk_plot = FigureCanvasTkAgg(self.figure, master=self.root)
         tk_plot.get_tk_widget().place(x=27, y=80, height=300, width=320)
 
         ax = self.figure.add_subplot(111)
         ax.axes.get_xaxis().set_visible(False)
         ax.axes.get_yaxis().set_visible(False)
-        
-        self.line, = ax.plot(self.x, np.sin(self.x))
-        ani = animation.FuncAnimation(self.figure, self.animate, np.arange(1, 200), interval=25, blit=False)
+
+        (self.line,) = ax.plot(self.x, np.sin(self.x))
+        ani = animation.FuncAnimation(
+            self.figure, self.animate, np.arange(1, 200), interval=25, blit=False
+        )
 
         # display app
         self.root.mainloop()
