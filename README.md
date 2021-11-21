@@ -25,7 +25,7 @@ $ sh ./docs/scripts/run_player_project.bash
 
 Build Project
 -------------
-
+** Issue with pyinstaller while building the executable with relative paths, so a switch to absolute paths is needed in the meantime.
 Run the following command on a New Terminal:
 
 ```
