@@ -80,6 +80,11 @@ class Music_Player:
                 r".\src\assets\boton-de-play.png"
             ).resize((37, 37))
         )
+        self.stop_button = ImageTk.PhotoImage(
+            Image.open(
+                r".\src\assets\boton-de-stop.png"
+            ).resize((37, 37))
+        )
         self.pause_button = ImageTk.PhotoImage(
             Image.open(
                 r".\src\assets\boton-de-pause.png"
@@ -128,6 +133,7 @@ class Music_Player:
         self.index_song = 0
         self.song_name = ""
         self.song_names = []
+        self.counting = True
         self.button_state = DISABLED
         self.color_list = [
             "#ED003C",
@@ -220,8 +226,8 @@ class Music_Player:
         self.canvas.itemconfig(self.lenght, text=song_length)
         # loop start
         i = 0
-        counting = True
-        while counting:
+        
+        while self.counting:
             # current playing time
             end = time.time()
 
@@ -261,13 +267,16 @@ class Music_Player:
             time.sleep(self.sleep_secs)
 
             if seconds_elapsed > song_length_secs:
-                counting = False
+                self.counting = False
 
             self.root.update()
 
-        # reset bar and labels
-        self.progress_bar.stop()
+        # reset progress bars and labels
+        for child in self.root.winfo_children():
+            if "progressbar" in str(child):
+                child.stop()
         self.canvas.itemconfig(self.playing, text=self.song_progress)
+        self.canvas.itemconfig(self.lenght, text=self.song_length)
         self.canvas.itemconfig(self.name, text="")
 
     def play_song(self):
@@ -280,6 +289,7 @@ class Music_Player:
         # enable action buttons
         self.prev_music_btn["state"] = NORMAL
         self.pl_music_btn["state"] = NORMAL
+        self.stop_music_btn["state"] = NORMAL
         self.next_music_btn["state"] = NORMAL
 
         # load next song
@@ -325,9 +335,28 @@ class Music_Player:
         None
         """
         pygame.mixer.music.stop()
+        
+        # stop playing loop
+        self.counting = False
+        
+        # disable action buttons
+        # enable action buttons
+        self.prev_music_btn["state"] = self.button_state
+        self.pl_music_btn["state"] = self.button_state
+        self.stop_music_btn["state"] = self.button_state
+        self.next_music_btn["state"] = self.button_state
+        
+        # reset progress bars and labels
+        for child in self.root.winfo_children():
+            if "progressbar" in str(child):
+                child.stop()                
+        
         self.playing_status = "Not Playing"
+        self.pl_music_btn.configure(image=self.play_button)
 
+    # TODO: pause Progress Bar and Equalizer
     def pause_music(self):
+        
         """
         Pauses the current music
         Parameters
@@ -345,7 +374,11 @@ class Music_Player:
 
         # update played time labels
         self.canvas.itemconfig(self.playing, text=song_progress)
+        self.pause_pbar()
 
+     # TODO:
+    
+    #TODO: resume Progress Bar and Equalizer at point stopped.
     def resume_music(self):
         """
         Resumes the current music
@@ -439,6 +472,15 @@ class Music_Player:
             pygame.mixer.music.set_volume(self.volume)
 
     def progress_bar_add(self, x_move, color):
+        """
+        adds a vertical progress bar to the canvas
+        Parameters
+        ----------
+        x_move : int
+            The x-coordinate of the progress bar
+        color : str
+            The color of the progress bar
+        """
         s = ttk.Style()
         s.theme_use("clam")
         s.configure(f"{color}.Vertical.TProgressbar", foreground=color, background=color)
@@ -454,7 +496,12 @@ class Music_Player:
         eq_bar.place(x=27 + x_move, y=80)
 
     def eq_updater(self):
-
+        """
+        Updates the equalizer bars ramdomly
+        Parameters
+        ----------
+        None
+        """
         for p_bar in sorted(
             [
                 child
@@ -466,6 +513,17 @@ class Music_Player:
             random_number = random.randint(1, 180)
             p_bar.step(random_number)
 
+    def pause_pbar(self):
+        """
+        pauses all progress bar
+        Parameters
+        ----------
+        None
+        """
+        for child in self.root.winfo_children():
+            if "progressbar" in str(child):
+                child.stop()
+    
     def screen_display(self):
         """
         Displays the player interface
@@ -573,7 +631,7 @@ class Music_Player:
             bg="#0A0A0A",
         )
 
-        self.prev_music_btn.place(x=100, y=619, height=45, width=50)
+        self.prev_music_btn.place(x=71, y=619, height=45, width=50)
         self.prev_music_btn["state"] = self.button_state
 
         # music controls play/plause
@@ -584,8 +642,20 @@ class Music_Player:
             image=self.play_button,
             bg="#0A0A0A",
         )
-        self.pl_music_btn.place(x=161, y=619, height=45, width=50)
+        self.pl_music_btn.place(x=132, y=619, height=45, width=50)
         self.pl_music_btn["state"] = self.button_state
+        
+        # music controls stop
+        self.stop_music_btn = Button(
+            self.root,
+            command=self.stop_music,
+            borderwidth=1,
+            image=self.stop_button,
+            bg="#0A0A0A",
+        )
+
+        self.stop_music_btn.place(x=193, y=619, height=45, width=50)
+        self.stop_music_btn["state"] = self.button_state
 
         # music controls next
         self.next_music_btn = Button(
@@ -595,7 +665,7 @@ class Music_Player:
             borderwidth=1,
             bg="#0A0A0A",
         )
-        self.next_music_btn.place(x=221, y=619, height=45, width=50)
+        self.next_music_btn.place(x=253, y=619, height=45, width=50)
         self.next_music_btn["state"] = self.button_state
 
         # volume control
