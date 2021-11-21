@@ -32,9 +32,9 @@ class Music_Player:
 
         # title icon
         self.root.iconbitmap(
-            r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\sound.ico"
+            r".\src\assets\sound.ico"
         )
-
+        
         # window dimension and position
 
         ## removes the maximize button
@@ -72,47 +72,47 @@ class Music_Player:
 
         self.prev_button = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-previous.png"
+                r".\src\assets\boton-de-previous.png"
             ).resize((37, 37))
         )
         self.play_button = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-play.png"
+                r".\src\assets\boton-de-play.png"
             ).resize((37, 37))
         )
         self.pause_button = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-pause.png"
+                r".\src\assets\boton-de-pause.png"
             ).resize((37, 37))
         )
         self.resume_button = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-resume.png"
+                r".\src\assets\boton-de-resume.png"
             ).resize((37, 37))
         )
         self.next_button = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\boton-de-next.png"
+                r".\src\assets\boton-de-next.png"
             ).resize((37, 37))
         )
         self.open_track = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\song.png"
+                r".\src\assets\song.png"
             ).resize((25, 25))
         )
         self.open_tracks = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\folder.png"
+                r".\src\assets\folder.png"
             ).resize((25, 25))
         )
         self.volume_up = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\plus.png"
+                r".\src\assets\plus.png"
             ).resize((25, 25))
         )
         self.volume_down = ImageTk.PhotoImage(
             Image.open(
-                r"C:\Users\jgarc\OneDrive\Escritorio\Python\tarea_programada\py_music_player\src\assets\minus.png"
+                r".\src\assets\minus.png"
             ).resize((25, 25))
         )
 
