@@ -8,6 +8,18 @@
             "type": "shell",
             "command": "pipenv run python ./src/main.py",
             "problemMatcher": []
+        },
+        {
+            "label": "BuildPy",
+            "type": "shell",
+            "command": "pyinstaller --onefile --windowed --name PyPlayer --icon=./src/assets/app.ico ./src/main.py",
+            "problemMatcher": []
+        },
+        {
+            "label": "BuildEnvPy",
+            "type": "shell",
+            "command": "pip install --user pipenv &&pipenv install && pipenv shell && pipenv run python ./src/main.py",
+            "problemMatcher": []
         }
     ]
 }
