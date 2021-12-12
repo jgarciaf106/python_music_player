@@ -144,6 +144,7 @@ class Music_Player:
             "#BC1077",
             "#544f40",
         ]
+        self.elapsed_time = 0
 
     # player functionalities
     def open_music_track(self):
@@ -245,6 +246,7 @@ class Music_Player:
 
             # update song progress on bar
             self.progress_bar.step(progress_move)
+            self.elapsed_time += progress_move
             self.eq_updater()
 
             # display scolling label
@@ -354,7 +356,6 @@ class Music_Player:
         self.playing_status = "Not Playing"
         self.pl_music_btn.configure(image=self.play_button)
 
-    # TODO: pause Progress Bar and Equalizer
     def pause_music(self):
         
         """
@@ -376,9 +377,9 @@ class Music_Player:
         self.canvas.itemconfig(self.playing, text=song_progress)
         self.pause_pbar()
 
+
      # TODO:
     
-    #TODO: resume Progress Bar and Equalizer at point stopped.
     def resume_music(self):
         """
         Resumes the current music
@@ -390,6 +391,7 @@ class Music_Player:
         self.playing_status = "Playing"
         self.pl_music_btn.configure(image=self.pause_button)
         self.sleep_secs = 1
+        self.progress_bar["value"] = self.elapsed_time
 
     def next_song(self):
         """
@@ -502,16 +504,17 @@ class Music_Player:
         ----------
         None
         """
-        for p_bar in sorted(
-            [
-                child
-                for child in self.root.winfo_children()
-                if "progressbar" in str(child) and str(child) != ".!progressbar"
-            ],
-            key=lambda _: random.random(),
-        ):
-            random_number = random.randint(1, 180)
-            p_bar.step(random_number)
+        if self.playing_status != "Paused":
+            for p_bar in sorted(
+                [
+                    child
+                    for child in self.root.winfo_children()
+                    if "progressbar" in str(child) and str(child) != ".!progressbar"
+                ],
+                key=lambda _: random.random(),
+            ):
+                random_number = random.randint(1, 180)
+                p_bar.step(random_number)
 
     def pause_pbar(self):
         """
